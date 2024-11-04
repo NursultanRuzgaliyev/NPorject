@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=ProjectBitlab'
+      - 'POSTGRES_PASSWORD=Nursultan23@'
+      - 'POSTGRES_USER=postgres'
+    ports:
+      - '5432:5432'  # Добавлен порт, чтобы он правильно мапировался
+
+volumes:
+  postgres_data:  # Опционально, если хотите использовать постоянное хранилище
