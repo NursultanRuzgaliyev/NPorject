@@ -95,7 +95,7 @@ class LessonControllerTest {
                         .content(new ObjectMapper().writeValueAsString(lessonDTO)))
                 .andExpect(status().isOk()); // Ожидаем 200 OK
     }
-git i
+
 
     @Test
     void testDeleteLesson() throws Exception {

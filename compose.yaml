@@ -1,14 +1,50 @@
-version: '3.8'
-
 services:
+  # Keycloak сервис для аутентификации
+  keycloak:
+    image: 'quay.io/keycloak/keycloak:20.0.3'
+    container_name: 'keycloak-container'
+    environment:
+      - KC_DB=postgres
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB_URL=jdbc:postgresql://keycloak-db:5432/ProjectBitlab
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=Nursultan23@
+    command:
+      - start-dev
+      - --http-relative-path=/auth  # Используйте кастомный путь
+    ports:
+      - "8081:8080"  # HTTP порт Keycloak
+      - "8843:8843"  # HTTPS порт Keycloak
+    depends_on:
+      - keycloak-db  # Убедитесь, что база данных для Keycloak запущена
+
+  # База данных для Keycloak с PostgreSQL 16
+  keycloak-db:
+    image: 'postgres:16'
+    container_name: 'keycloak-db-container-middle-03'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Nursultan23@
+      - POSTGRES_DB=ProjectBitlab
+    ports:
+      - "2345:5432"  # Внешний порт для Keycloak DB
+    volumes:
+      - keycloak_postgres_data:/var/lib/postgresql/data  # Хранение данных Keycloak DB
+
+  # Общая PostgreSQL база данных
   postgres:
     image: 'postgres:latest'
+    container_name: 'project-postgres-container'
     environment:
-      - 'POSTGRES_DB=ProjectBitlab'
-      - 'POSTGRES_PASSWORD=Nursultan23@'
-      - 'POSTGRES_USER=postgres'
+      - POSTGRES_DB=ProjectBitlab
+      - POSTGRES_PASSWORD=Nursultan23@
+      - POSTGRES_USER=postgres
     ports:
-      - '5432:5432'  # Добавлен порт, чтобы он правильно мапировался
+      - "7071:5432"  # Внешний порт для основной базы данных
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Хранение данных основной базы данных
 
 volumes:
-  postgres_data:  # Опционально, если хотите использовать постоянное хранилище
+  keycloak_postgres_data:  # Том для базы данных Keycloak
+  postgres_data:           # Том для основной базы данных
