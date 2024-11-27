@@ -4,6 +4,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
@@ -19,26 +20,14 @@ import java.util.stream.Collectors;
  */
 public class KeycloakRoleConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-    /**
-     * Преобразует токен JWT в объект аутентификации с ролями.
-     *
-     * @param source Jwt токен
-     * @return JwtAuthenticationToken с ролями
-     */
     @Override
     public AbstractAuthenticationToken convert(Jwt source) {
-        // Извлечение авторизаций из токена
+        UserDetails userDetails;
+         // Извлечение авторизаций из токена
         Collection<GrantedAuthority> authorities = extractAuthorities(source);
         return new JwtAuthenticationToken(source, authorities);
     }
 
-    /**
-     * Извлекает роли из claim "realm_access" в JWT токене и преобразует их
-     * в коллекцию объектов GrantedAuthority.
-     *
-     * @param source Jwt токен
-     * @return Коллекция GrantedAuthority
-     */
     private Collection<GrantedAuthority> extractAuthorities(Jwt source) {
         // Извлечение раздела "realm_access" из claim токена
         Map<String, Object> realmAccess = (Map<String, Object>) source.getClaims().get("realm_access");

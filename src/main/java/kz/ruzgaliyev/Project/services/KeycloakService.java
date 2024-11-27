@@ -2,6 +2,7 @@ package kz.ruzgaliyev.Project.services;
 
 import kz.ruzgaliyev.Project.dtos.UserCreateDto;
 import kz.ruzgaliyev.Project.dtos.UserSignInDTO;
+import kz.ruzgaliyev.Project.dtos.UserUpdateDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
@@ -95,4 +96,99 @@ public class KeycloakService {
         return (String) responseBody.get("access_token");
 
     }
+    public  void changePassword(String username,String newPassword) {
+        List<UserRepresentation>  users = keycloak
+                .realm(realm)
+                .users()
+                .search(username);
+        if(users.isEmpty()){
+            log.error("User not found to change password");
+            throw new RuntimeException("User not found");
+        }
+        UserRepresentation userRepresentation = users.get(0);
+        CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
+        credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
+        credentialRepresentation.setValue(newPassword);
+        credentialRepresentation.setTemporary(false);
+
+
+        keycloak
+                .realm(realm)
+                .users()
+                .get(userRepresentation.getId())
+                .resetPassword(credentialRepresentation);
+        log.info("Changed password");
+    }
+    public String refreshToken(String refreshToken) {
+        String tokenEndpoint = url + "/realms/" + realm + "/protocol/openid-connect/token";
+
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("grant_type", "refresh_token");
+        formData.add("client_id", client);
+        formData.add("client_secret", clientSecret);
+        formData.add("refresh_token", refreshToken);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/x-www-form-urlencoded");
+
+        ResponseEntity<Map> response = restTemplate.postForEntity(tokenEndpoint, new HttpEntity<>(formData, headers), Map.class);
+        Map<String, Object> responseBody = response.getBody();
+
+        if (!response.getStatusCode().is2xxSuccessful() || responseBody == null) {
+            log.error("Error refreshing token");
+            throw new RuntimeException("Failed to refresh token");
+        }
+
+        return (String) responseBody.get("access_token");
+    }
+    public void updateUser(String currentUserName, UserUpdateDTO userUpdateDTO) {
+        // Получаем пользователя из Keycloak
+        List<UserRepresentation> users = keycloak
+                .realm(realm)
+                .users()
+                .search(currentUserName);
+
+        if (users.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+
+        UserRepresentation user = users.get(0);
+
+        // Обновляем данные
+        if (userUpdateDTO.getEmail() != null) {
+            user.setEmail(userUpdateDTO.getEmail());
+        }
+        if (userUpdateDTO.getUsername() != null) {
+            user.setUsername(userUpdateDTO.getUsername());
+        }
+        if (userUpdateDTO.getFirstName() != null) {
+            user.setFirstName(userUpdateDTO.getFirstName());
+        }
+        if (userUpdateDTO.getLastName() != null) {
+            user.setLastName(userUpdateDTO.getLastName());
+        }
+
+        // Обновляем пользователя в Keycloak
+        keycloak
+                .realm(realm)
+                .users()
+                .get(user.getId())
+                .update(user);
+
+        // Если передан новый пароль, обновляем его отдельно
+        if (userUpdateDTO.getPassword() != null) {
+            CredentialRepresentation newPassword = new CredentialRepresentation();
+            newPassword.setType(CredentialRepresentation.PASSWORD);
+            newPassword.setValue(userUpdateDTO.getPassword());
+            newPassword.setTemporary(false);
+
+            keycloak
+                    .realm(realm)
+                    .users()
+                    .get(user.getId())
+                    .resetPassword(newPassword);
+        }
+    }
+
+
 }

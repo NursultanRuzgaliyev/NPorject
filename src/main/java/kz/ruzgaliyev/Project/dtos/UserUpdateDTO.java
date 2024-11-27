@@ -7,11 +7,11 @@ import lombok.*;
 @Getter
 @Setter
 
-public class UserCreateDto {
-
+@Data
+public class UserUpdateDTO {
     private String email;
     private String username;
     private String firstName;
     private String lastName;
-    private String password;
+    private String password; // Новый пароль, если требуется обновление
 }

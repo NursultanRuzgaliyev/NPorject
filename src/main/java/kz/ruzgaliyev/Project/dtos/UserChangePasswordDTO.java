@@ -6,8 +6,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
-
-public class UserSignInDTO {
-    private String username;
-    private String password;
+@Builder
+public class UserChangePasswordDTO {
+    private String newPassword;
 }
