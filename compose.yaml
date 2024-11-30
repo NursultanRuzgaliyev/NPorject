@@ -1,4 +1,5 @@
 services:
+
   # Keycloak сервис для аутентификации
   keycloak:
     image: 'quay.io/keycloak/keycloak:20.0.3'
@@ -12,7 +13,6 @@ services:
       - KC_DB_PASSWORD=Nursultan23@
     command:
       - start-dev
-      - --http-relative-path=/auth  # Используйте кастомный путь
     ports:
       - "8081:8080"  # HTTP порт Keycloak
       - "8843:8843"  # HTTPS порт Keycloak
