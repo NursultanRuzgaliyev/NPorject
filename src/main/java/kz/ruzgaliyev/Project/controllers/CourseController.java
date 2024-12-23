@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,6 +50,7 @@ public class CourseController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create a new course", description = "Add a new course to the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Course created successfully"),
@@ -61,6 +63,7 @@ public class CourseController {
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update an existing course", description = "Update the details of an existing course")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Course updated successfully"),
@@ -74,6 +77,7 @@ public class CourseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete a course by ID", description = "Remove a course from the system by its ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Course deleted successfully"),

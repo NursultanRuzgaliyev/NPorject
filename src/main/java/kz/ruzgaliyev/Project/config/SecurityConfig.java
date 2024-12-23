@@ -23,6 +23,8 @@ public class SecurityConfig {
                                 requestMatchers("/user/create").permitAll().
                                 requestMatchers("/user/sign-in").permitAll().
                                 requestMatchers("/user/refresh").permitAll().
+                                requestMatchers("/course/**").hasRole("ADMIN").
+                                requestMatchers("/chapter/**").hasRole("ADMIN").
                                 anyRequest().authenticated()
                 )
                 .sessionManagement(

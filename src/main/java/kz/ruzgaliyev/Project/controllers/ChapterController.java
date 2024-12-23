@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,6 +53,7 @@ public class ChapterController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create a new chapter", description = "Add a new chapter to the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Chapter created successfully"),
@@ -64,6 +66,7 @@ public class ChapterController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update an existing chapter", description = "Update the details of an existing chapter")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Chapter updated successfully"),
@@ -78,6 +81,7 @@ public class ChapterController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete a chapter by ID", description = "Remove a chapter from the system by its ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Chapter deleted successfully"),
