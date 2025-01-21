@@ -50,7 +50,7 @@ public class CourseController {
 
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+
     @Operation(summary = "Create a new course", description = "Add a new course to the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Course created successfully"),

@@ -16,6 +16,8 @@ java {
 repositories {
 	// Основной репозиторий для зависимостей
 	mavenCentral()
+	mavenCentral()
+	maven { url 'https://repo.spring.io/release' }
 }
 
 dependencies {
@@ -52,6 +54,12 @@ dependencies {
 
 	// Liquibase для миграций базы данных
 	implementation 'org.liquibase:liquibase-core'
+
+	implementation group: 'io.minio', name: 'minio', version: '8.5.5'
+
+	// https://mvnrepository.com/artifact/commons-codec/commons-codec
+	implementation group: 'commons-codec', name: 'commons-codec', version: '1.17.2'
+
 
 	// Зависимости для тестирования
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

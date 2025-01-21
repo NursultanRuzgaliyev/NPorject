@@ -14,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -25,6 +26,9 @@ public class SecurityConfig {
                                 requestMatchers("/user/refresh").permitAll().
                                 requestMatchers("/course/**").hasRole("ADMIN").
                                 requestMatchers("/chapter/**").hasRole("ADMIN").
+                                requestMatchers("/lesson/**").hasRole("ADMIN").
+                                requestMatchers("file/upload").hasAnyRole("ADMIN", "TEACHER").
+                                requestMatchers("/file/download/**").hasAnyRole("ADMIN", "TEACHER","USER").
                                 anyRequest().authenticated()
                 )
                 .sessionManagement(

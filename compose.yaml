@@ -1,38 +1,39 @@
-services:
+version: '3.8'
 
-  # Keycloak сервис для аутентификации
+services:
   keycloak:
-    image: 'quay.io/keycloak/keycloak:20.0.3'
+    image: 'quay.io/keycloak/keycloak:21.1.1'
     container_name: 'keycloak-container'
     environment:
       - KC_DB=postgres
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
-      - KC_DB_URL=jdbc:postgresql://keycloak-db:5432/ProjectBitlab
+      - KC_DB_URL=jdbc:postgresql://keycloak-db:5432/keycloak_db
       - KC_DB_USERNAME=postgres
       - KC_DB_PASSWORD=Nursultan23@
+    ports:
+      - "8081:8080"
+      - "8843:8843"
+    depends_on:
+      - keycloak-db
+    volumes:
+      - ./wait-for-db.sh:/opt/keycloak/bin/wait-for-db.sh
     command:
       - start-dev
-    ports:
-      - "8081:8080"  # HTTP порт Keycloak
-      - "8843:8843"  # HTTPS порт Keycloak
-    depends_on:
-      - keycloak-db  # Убедитесь, что база данных для Keycloak запущена
 
-  # База данных для Keycloak с PostgreSQL 16
+
   keycloak-db:
     image: 'postgres:16'
-    container_name: 'keycloak-db-container-middle-03'
+    container_name: 'keycloak-db-container'
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=Nursultan23@
-      - POSTGRES_DB=ProjectBitlab
+      - POSTGRES_DB=keycloak_db
     ports:
-      - "2345:5432"  # Внешний порт для Keycloak DB
+      - "2345:5432"
     volumes:
-      - keycloak_postgres_data:/var/lib/postgresql/data  # Хранение данных Keycloak DB
+      - keycloak_postgres_data:/var/lib/postgresql/data
 
-  # Общая PostgreSQL база данных
   postgres:
     image: 'postgres:latest'
     container_name: 'project-postgres-container'
@@ -41,10 +42,38 @@ services:
       - POSTGRES_PASSWORD=Nursultan23@
       - POSTGRES_USER=postgres
     ports:
-      - "7071:5432"  # Внешний порт для основной базы данных
+      - "7071:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data  # Хранение данных основной базы данных
+      - postgres_data:/var/lib/postgresql/data
+
+  minio-service:
+    image: quay.io/minio/minio
+    container_name: minio-service-container
+    environment:
+      - MINIO_ROOT_USER=root
+      - MINIO_ROOT_PASSWORD=rootpassword
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  minio-setup:
+    image: minio/mc
+    depends_on:
+      - minio-service
+    environment:
+      MC_HOST: http://root:rootpassword@minio-service:9000
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Инициализация MinIO...';
+      mc alias set minio http://minio-service:9000 root rootpassword;
+      mc mb minio/dev-bucket || true;
+      exit 0;
+      "
 
 volumes:
-  keycloak_postgres_data:  # Том для базы данных Keycloak
-  postgres_data:           # Том для основной базы данных
+  keycloak_postgres_data:
+  postgres_data:
+  minio_data:
